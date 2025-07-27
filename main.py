@@ -38,7 +38,7 @@ def summarize_spreadsheet(url: str = Query(..., description="Public Google Sheet
         response = requests.get(download_url)
         response.raise_for_status()
 
-        wb = openpyxl.load_workbook(io.BytesIO(response.content), data_only=True)
+        wb = openpyxl.load_workbook(io.BytesIO(response.content), data_only=True, keep_links=False)
         summaries = {}
 
         for sheet_name in wb.sheetnames:
