@@ -26,7 +26,7 @@ def convert_to_xlsx_url(google_url: str) -> str:
 def summarize_text(text: str) -> str:
     prompt = f"Summarize the following spreadsheet tab content:\n\n{text}"
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.5
     )
