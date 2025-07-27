@@ -1,3 +1,4 @@
+from openai import OpenAI
 import uvicorn
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
@@ -11,7 +12,7 @@ import openai
 
 app = FastAPI()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class SheetSummaries(BaseModel):
     summaries: Dict[str, str]
@@ -24,12 +25,12 @@ def convert_to_xlsx_url(google_url: str) -> str:
 
 def summarize_text(text: str) -> str:
     prompt = f"Summarize the following spreadsheet tab content:\n\n{text}"
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.5
     )
-    return response['choices'][0]['message']['content'].strip()
+    return response.choices[0].message.content.strip()
 
 @app.get("/summarize", response_model=SheetSummaries)
 def summarize_spreadsheet(url: str = Query(..., description="Public Google Sheets URL")):
