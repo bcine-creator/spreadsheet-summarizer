@@ -42,13 +42,17 @@ def summarize_spreadsheet(url: str = Query(..., description="Public Google Sheet
         summaries = {}
 
         for sheet_name in wb.sheetnames:
-            sheet = wb[sheet_name]
-            rows = []
-            for row in sheet.iter_rows(values_only=True):
-                rows.append("\t".join([str(cell) if cell is not None else "" for cell in row]))
-            sheet_text = "\n".join(rows)
-            summary = summarize_text(sheet_text[:5000])
-            summaries[sheet_name] = summary
+    try:
+        sheet = wb[sheet_name]
+        rows = []
+        for row in sheet.iter_rows(values_only=True):
+            rows.append("\t".join([str(cell) if cell is not None else "" for cell in row]))
+        sheet_text = "\n".join(rows)
+        summary = summarize_text(sheet_text[:5000])
+        summaries[sheet_name] = summary
+    except Exception as e:
+        print(f"❌ Skipping sheet '{sheet_name}' due to error: {e}")
+        summaries[sheet_name] = f"Error reading this sheet: {str(e)}"
 
         return {"summaries": summaries}
 
