@@ -49,8 +49,39 @@ def summarize_spreadsheet(url: str = Query(..., description="Public Google Sheet
                 for row in sheet.iter_rows(values_only=True):
                     rows.append("\t".join([str(cell) if cell is not None else "" for cell in row]))
                 sheet_text = "\n".join(rows)
-                summary = summarize_text(sheet_text[:5000])
-                summaries[sheet_name] = summary
+             
+        from collections import defaultdict
+        import csv
+                
+                totals = {
+                    "totalRealizedPL": 0.0,
+                    "totalOptionsTraded": 0,
+                    "tradesBySymbol": defaultdict(int)
+                }
+                
+                lines = sheet_text.splitlines()
+                reader = csv.DictReader(lines)
+                
+                for row in reader:
+                    symbol = row.get("Symbol")
+                    if symbol:
+                        totals["tradesBySymbol"][symbol] += 1
+                
+                    try:
+                        qty = int(float(row.get("Quantity", "0").replace(",", "").strip()))
+                        totals["totalOptionsTraded"] += qty
+                    except (ValueError, AttributeError):
+                        pass
+                
+                    try:
+                        pl = float(row.get("Realized P/L", "0").replace("$", "").replace(",", "").strip())
+                        totals["totalRealizedPL"] += pl
+                    except (ValueError, AttributeError):
+                        pass
+                
+                totals["tradesBySymbol"] = dict(totals["tradesBySymbol"])
+                summaries[sheet_name] = totals
+                
             except Exception as e:
                 print(f"❌ Skipping sheet '{sheet_name}' due to error: {e}")
                 summaries[sheet_name] = f"Error reading this sheet: {str(e)}"
