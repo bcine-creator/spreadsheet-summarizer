@@ -41,20 +41,20 @@ def summarize_spreadsheet(url: str = Query(..., description="Public Google Sheet
         wb = openpyxl.load_workbook(io.BytesIO(response.content), data_only=True, keep_links=False)
         summaries = {}
 
-for sheet_name in wb.sheetnames:
-    try:
-        sheet = wb[sheet_name]
-        rows = []
-        for row in sheet.iter_rows(values_only=True):
-            rows.append("\t".join([str(cell) if cell is not None else "" for cell in row]))
-        sheet_text = "\n".join(rows)
-        summary = summarize_text(sheet_text[:5000])
-        summaries[sheet_name] = summary
-    except Exception as e:
-        print(f"❌ Skipping sheet '{sheet_name}' due to error: {e}")
-        summaries[sheet_name] = f"Error reading this sheet: {str(e)}"
+        for sheet_name in wb.sheetnames:
+            try:
+                sheet = wb[sheet_name]
+                rows = []
+                for row in sheet.iter_rows(values_only=True):
+                    rows.append("\t".join([str(cell) if cell is not None else "" for cell in row]))
+                sheet_text = "\n".join(rows)
+                summary = summarize_text(sheet_text[:5000])
+                summaries[sheet_name] = summary
+            except Exception as e:
+                print(f"❌ Skipping sheet '{sheet_name}' due to error: {e}")
+                summaries[sheet_name] = f"Error reading this sheet: {str(e)}"
 
-return {"summaries": summaries}
+        return {"summaries": summaries}
 
     except Exception as e:
         print("❌ Error:", str(e))  # Shows up in Render logs
