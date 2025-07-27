@@ -54,7 +54,7 @@ for sheet_name in wb.sheetnames:
         print(f"❌ Skipping sheet '{sheet_name}' due to error: {e}")
         summaries[sheet_name] = f"Error reading this sheet: {str(e)}"
 
-        return {"summaries": summaries}
+return {"summaries": summaries}
 
     except Exception as e:
         print("❌ Error:", str(e))  # Shows up in Render logs
