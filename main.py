@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Query
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import requests
 import io
@@ -50,5 +51,7 @@ def summarize_spreadsheet(url: str = Query(..., description="Public Google Sheet
             summaries[sheet_name] = summary
 
         return {"summaries": summaries}
+
     except Exception as e:
-        return {"error": str(e)}
+        print("❌ Error:", str(e))  # Shows up in Render logs
+        return JSONResponse(status_code=500, content={"error": str(e)})
